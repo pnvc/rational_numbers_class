@@ -5,6 +5,7 @@
  * This class is for manipulating rational numbers of the form n/m,
  * where n is nominator and m is denominator, n includes 0
  * (how only {N} if i need 0 and division on 0 = Inf? :D).
+ * If you need the double result as < 0. then set m < 0.
  * Provides:
  * 		default oparators +=, -=, *=, /= (r1 +*-/= r2 => r1 = r1 operator r2),
  * 		public methods:
@@ -26,17 +27,18 @@ class Rational {
 		 * 		Rational(nn): n = nn, m = 1;
 		 * 		Rational(nn, mm): n = nn, m = mm;
 		 * 		if nn < 0 then n = |nn|
-		 * 		if mm == 0 then m = 1
 		 * 	Second:
 		 * 		For the exclude of copy per bytes.
 		 * 	This class without explict destructor.
 		 */
-		Rational(long long nn = 1, long long mm = 1) : n(nn < 0 ? -nn : nn), m(!mm ? 1 : mm) {}
+		Rational(long long nn = 1, long long mm = 1) : n(nn < 0 ? -nn : nn), m(mm) {}
 		Rational(const Rational &r) : n(r.n), m(r.m) {}
-		void operator += (Rational& op) { n += op.n; m += op.m; } // rational1 += rational2 => rational1 = rational1 + rational2
-		void operator -= (Rational& op) { n -= op.n; m -= op.m; } // rational -= rational => rational1 = rational1 - rational2
-		void operator *= (Rational& op) { n *= op.n; m *= op.m; } // rational *= rational => rational1 = rational1 * rational2
-		void operator /= (Rational& op) { n *= op.m; m *= op.n; } // rational /= rational => rational1 = rational1 / rational2
+
+		Rational &operator += (const Rational& op); // Rational1 += Rational2
+		Rational &operator -= (const Rational& op); // Rational1 -= Rational2
+		Rational &operator *= (const Rational& op); // Rational1 *= Rational2
+		Rational &operator /= (const Rational& op); // Rational1 /= Rational2
+
 		long long &GetN() { return n; } // return link at n (changable)
 		long long &GetM() { return m; } // return link at m (changable)
 		double GetFloat() const { return rational_float(); } // n / m

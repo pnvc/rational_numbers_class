@@ -11,12 +11,16 @@
 /* rational_float() just return a value as double type by division the numerator (n) on denominator (m). */
 double Rational::rational_float() const
 {
+	if (!m || !n)
+		return 0.;
 	return (double)n / m;
 }
 
 /* rational_float_whole returns a whole from division (n) on (m). */
 double Rational::rational_float_whole() const
 {
+	if (!m || !n)
+		return 0.;
 	long long res = n / m;
 	return (double)res;
 }
@@ -24,6 +28,8 @@ double Rational::rational_float_whole() const
 /* rational_fraction returns a fraction from division (n) on (m). */
 double Rational::rational_fraction() const
 {
+	if (!m || !n)
+		return 0;
 	double res = (double)n / m;
 	return res += (long long)-res;
 }
@@ -57,8 +63,12 @@ double Rational::rational_float_whole_rounded() const
 													// for example: 0.12345 => {1, 2, 3, 4, 5, 0, ..., ROUND_ARR_LENGTH}
 													// :D
 	i = ROUND_ARR_LENGTH - 1;
-	while (i > 0)
-		arr[i] > 4 ? arr[i---1]-- : --i; // hehe
+	while (i > 0) {
+		arr[i] > 4 ? arr[i-- - 1]++ : --i; // hehe
+		if (!arr[i]) // It's mean that if initialy .495, so without if it will be as .405, but its wrong
+					// we need up 0 to minimal 5 for up .4 to .5 and get right result.
+			arr[i] = 5;
+	}
 	return arr[0] > 4 ? result_whole >= 0 ? ++result_whole : --result_whole : result_whole;
 }
 
@@ -72,6 +82,31 @@ void Rational::filling_arr(long long *arr, unsigned long arr_length, double r) c
 		r *= 10;
 	}
 }
+
+/* Below just four operators +*-/= */
+Rational &Rational::operator += (const Rational& op)
+{
+	long long n, m;
+	m = this->m * op.m;
+	n = (this->n * (m / this->m)) + (op.n * (m / op.m));
+	!n ? n = 0, m = 1 : n < 0 ? n *= -1, m *= -1 : n = n, m = m;
+	this->n = n;
+	this->m = m;
+	return *this;
+}
+Rational &Rational::operator -= (const Rational& op)
+{
+	long long n, m;
+	m = this->m * op.m;
+	n = (this->n * (m / this->m)) - (op.n * (m / op.m));
+	!n ? n = 0, m = 1 : n < 0 ? n *= -1, m *= -1 : n = n, m = m;
+	this->n = n;
+	this->m = m;
+	return *this;
+}
+Rational &Rational::operator *= (const Rational& op) { n *= op.n; m *= op.m; return *this; }
+Rational &Rational::operator /= (const Rational& op) { n *= op.m; m *= op.n; return *this; }
+
 
 /*
  * Operators below for Rational = Rational1 +*-/ Rational2
