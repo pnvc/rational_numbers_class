@@ -1,5 +1,4 @@
 #include "rational.h"
-#include <stdio.h>
 
 #define ROUND_ARR_LENGTH 15
 
@@ -82,6 +81,7 @@ double Rational::rational_float_whole_rounded() const
 void Rational::filling_arr(long long *arr, unsigned long arr_length, double r) const
 {
 	if (r < 0) r *= -1;
+	r *= 10;
 	for (unsigned long i = 0; i < arr_length; i++) {
 		arr[i] = (long long)r;
 		r -= (long long)r;
