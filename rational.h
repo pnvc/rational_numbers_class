@@ -19,6 +19,11 @@
 class Rational {
 	long long n, m; // n = {0, N} = n > 0, m = {Z} = -inf < m < +inf, float = n / m
 
+	friend Rational operator+(Rational& r1, Rational& r2);
+	friend Rational operator-(Rational& r1, Rational& r2);
+	friend Rational operator*(Rational& r1, Rational& r2);
+	friend Rational operator/(Rational& r1, Rational& r2);
+
 	public:
 		/*
 		 * Two constructors.
@@ -31,8 +36,8 @@ class Rational {
 		 * 		For the exclude of copy per bytes.
 		 * 	This class without explict destructor.
 		 */
-		Rational(long long nn = 1, long long mm = 1) : n(nn < 0 ? -nn : nn), m(mm) {}
-		Rational(const Rational &r) : n(r.n), m(r.m) {}
+		Rational(long long nn = 1, long long mm = 1) : n(nn < 0 ? -nn : nn), m(mm) { euclid_gcd_n_m(n, m); }
+		Rational(const Rational& r) : n(r.n), m(r.m) {}
 
 		Rational &operator += (const Rational& op); // Rational1 += Rational2
 		Rational &operator -= (const Rational& op); // Rational1 -= Rational2
@@ -53,6 +58,8 @@ class Rational {
 		double rational_fraction() const;
 		double rational_float_whole_rounded() const;
 		void filling_arr(long long *arr, unsigned long arr_length, double r) const;
+
+		static void euclid_gcd_n_m(long long& n, long long& m);
 };
 
 Rational operator+(Rational &r1, Rational &r2);

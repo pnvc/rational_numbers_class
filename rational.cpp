@@ -5,10 +5,10 @@
 
 /*
  * All these functions are private within the Rational class,
- * excluded: Rational operator +*-/
+ * excluded: Rational operator +*-/, the are not methods of the Rational class.
+ *
+ * rational_float() just return a value as double type by division the numerator (n) on denominator (m).
  */
-
-/* rational_float() just return a value as double type by division the numerator (n) on denominator (m). */
 double Rational::rational_float() const
 {
 	if (!m || !n)
@@ -16,7 +16,9 @@ double Rational::rational_float() const
 	return (double)n / m;
 }
 
-/* rational_float_whole returns a whole from division (n) on (m). */
+/*
+ * rational_float_whole returns a whole from division (n) on (m).
+ */
 double Rational::rational_float_whole() const
 {
 	if (!m || !n)
@@ -25,7 +27,9 @@ double Rational::rational_float_whole() const
 	return (double)res;
 }
 
-/* rational_fraction returns a fraction from division (n) on (m). */
+/*
+ * rational_fraction returns a fraction from division (n) on (m).
+ */
 double Rational::rational_fraction() const
 {
 	if (!m || !n)
@@ -72,7 +76,9 @@ double Rational::rational_float_whole_rounded() const
 	return arr[0] > 4 ? result_whole >= 0 ? ++result_whole : --result_whole : result_whole;
 }
 
-/* filling_arr are filling the arr with arr_length length by every single part of r (fracation) value. */
+/*
+ * filling_arr are filling the arr with arr_length length by every single part of r (fracation) value.
+ */
 void Rational::filling_arr(long long *arr, unsigned long arr_length, double r) const
 {
 	if (r < 0) r *= -1;
@@ -83,29 +89,63 @@ void Rational::filling_arr(long long *arr, unsigned long arr_length, double r) c
 	}
 }
 
-/* Below just four operators +*-/= */
+/*
+ * euclid_gcd_n_m finds greatest common divisor of n and m and divisions them on gcd.
+ */
+void Rational::euclid_gcd_n_m(long long& n, long long& m)
+{
+	long long nn, mm, mm_tmp;
+	nn = n;
+	mm = m;
+	while (mm) {
+		nn %= mm;
+		mm_tmp = mm;
+		mm = nn;
+		nn = mm_tmp;
+	}
+	if (nn < 0)
+		nn *= -1;
+	n /= nn;
+	m /= nn;
+}
+
+/* 
+ * Below just four operators +*-/=
+ */
 Rational &Rational::operator += (const Rational& op)
 {
-	long long n, m;
-	m = this->m * op.m;
-	n = (this->n * (m / this->m)) + (op.n * (m / op.m));
-	!n ? n = 0, m = 1 : n < 0 ? n *= -1, m *= -1 : n = n, m = m;
-	this->n = n;
-	this->m = m;
+	long long nn, mm;
+	mm = this->m * op.m;
+	nn = (this->n * (mm / this->m)) + (op.n * (mm / op.m));
+	!nn ? nn = mm = 0 : nn < 0 ? nn *= -1, mm *= -1 : nn = nn, mm = mm;
+	euclid_gcd_n_m(nn, mm);
+	n = nn;
+	m = mm;
 	return *this;
 }
 Rational &Rational::operator -= (const Rational& op)
 {
-	long long n, m;
-	m = this->m * op.m;
-	n = (this->n * (m / this->m)) - (op.n * (m / op.m));
-	!n ? n = 0, m = 1 : n < 0 ? n *= -1, m *= -1 : n = n, m = m;
-	this->n = n;
-	this->m = m;
+	long long nn, mm;
+	mm = this->m * op.m;
+	nn = (this->n * (mm / this->m)) - (op.n * (mm / op.m));
+	!nn ? nn = mm = 0 : nn < 0 ? nn *= -1, mm *= -1 : nn = nn, mm = mm;
+	euclid_gcd_n_m(nn, mm);
+	n = nn;
+	m = mm;
 	return *this;
 }
-Rational &Rational::operator *= (const Rational& op) { n *= op.n; m *= op.m; return *this; }
-Rational &Rational::operator /= (const Rational& op) { n *= op.m; m *= op.n; return *this; }
+Rational &Rational::operator *= (const Rational& op) 
+{
+	n *= op.n; m *= op.m;
+	euclid_gcd_n_m(n, m);
+	return *this; 
+}
+Rational &Rational::operator /= (const Rational& op)
+{
+	n *= op.m; m *= op.n;
+	euclid_gcd_n_m(n, m);
+	return *this;
+}
 
 
 /*
@@ -115,20 +155,36 @@ Rational &Rational::operator /= (const Rational& op) { n *= op.m; m *= op.n; ret
 Rational operator+(Rational &r1, Rational &r2)
 {
 	long long n, m;
-	m = r1.GetM() * r2.GetM();
-	n = (r1.GetN() * (m / r1.GetM())) + (r2.GetN() * (m / r2.GetM()));
+	m = r1.n * r2.m;
+	n = (r1.n * (m / r1.m)) + (r2.n * (m / r2.m));
 	!n ? n = 0, m = 1 : n < 0 ? n *= -1, m *= -1 : n=n, m=m;
+	Rational::euclid_gcd_n_m(n, m);
 	return Rational(n, m);
 }
 
 Rational operator-(Rational &r1, Rational &r2)
 {
 	long long n, m;
-	m = r1.GetM() * r2.GetM();
-	n = (r1.GetN() * (m / r1.GetM())) - (r2.GetN() * (m / r2.GetM()));
-	!n ? n = 0, m = 1 : n < 0 ? n *= -1, m *= -1 : n=n, m=m;
+	m = r1.n * r2.m;
+	n = (r1.n * (m / r1.m)) - (r2.n * (m / r2.m));
+	!n ? n = 0, m = 1 : n < 0 ? n *= -1, m *= -1 : n = n, m = m;
+	Rational::euclid_gcd_n_m(n, m);
 	return Rational(n, m);
 }
 
-Rational operator*(Rational &r1, Rational &r2) { return Rational(r1.GetN() * r2.GetN(), r1.GetM() * r2.GetM()); }
-Rational operator/(Rational &r1, Rational &r2) { return Rational(r1.GetN() * r2.GetM(), r1.GetM() * r2.GetN()); }
+Rational operator*(Rational &r1, Rational &r2)
+{
+	long long n, m;
+	n = r1.n * r2.n;
+	m = r1.m * r2.m;
+	Rational::euclid_gcd_n_m(n, m);
+	return Rational(n, m);
+}
+Rational operator/(Rational &r1, Rational &r2)
+{
+	long long n, m;
+	n = r1.n * r2.m;
+	m = r1.m * r2.n;
+	Rational::euclid_gcd_n_m(n, m);
+	return Rational(n, m);
+}
